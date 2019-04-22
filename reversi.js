@@ -293,7 +293,9 @@ function checkGameEnd(){
 
       document.getElementById("numWins").innerHTML = "White Wins: " + whiteWinsCount +
       " Black Wins: " + blackWinsCount;
-      init();
+      if(loop == 1){
+        init();
+      }
     }
 }
 
@@ -486,7 +488,8 @@ function init(){
 $('#initGame').click(function(){
   whitePlayerType = document.getElementById("SelectWhite").value;
   blackPlayerType = document.getElementById("SelectBlack").value;
-  loop = document.getElementById("loopBox").value;
+  if(document.getElementById("loopBox").checked == true){loop = 1;}
+  else{loop = 0;}
   document.getElementById("initGame").innerHTML = "Restart";
   init();
 });
