@@ -376,9 +376,13 @@ function boardClick(){
 
 //runs when game is set to any ai vs any ai
 function aiGame(){
-  while(gameOver != 1){
-    //ai vs ai
 
+  play();
+
+  function play(){
+    //ai vs ai
+    var whiteFinishFlag = 0;
+    var blackFinishFlag = 0;
     aiRecentx = -1;
     aiRecenty = -1;
     globalWait = 1;
@@ -391,23 +395,29 @@ function aiGame(){
         checkGameEnd();
         drawBoard();
         updateInfo();
+        whiteFinishFlag = 1;
         globalWait = 0;
-      }, 1000)
-    }
-    aiRecentx = -1;
-    aiRecenty = -1;
-    globalWait = 1;
-    if(turn == 2){
-      setTimeout(function(){
-        makeAiMove(turn, blackPlayerType);
-        turn = 1;
 
-        getValidMoves(turn);
-        checkGameEnd();
-        drawBoard();
-        updateInfo();
-        globalWait = 0;
-      }, 1000)
+        aiRecentx = -1;
+        aiRecenty = -1;
+        globalWait = 1;
+        if(turn == 2){
+          setTimeout(function(){
+            makeAiMove(turn, blackPlayerType);
+            turn = 1;
+
+            getValidMoves(turn);
+            checkGameEnd();
+            drawBoard();
+            updateInfo();
+            blackFinishFlag = 1;
+            globalWait = 0;
+            if(whiteFinishFlag == 1 && blackFinishFlag == 1 && gameOver != 1){
+              play();
+            }
+          }, 100)
+        }
+      }, 100)
     }
   }
 }
