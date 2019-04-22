@@ -19,6 +19,7 @@ var globalWait = 0; //set to 1 when user has to wait to click
 var loop = 0; //resets game with same params on gameEnd
 var aiRecentx = -1; var aiRecenty = -1;
 var whiteWinsCount = 0; var blackWinsCount = 0;
+var aiDelay = 100; //ai vs ai delay in ms
 
 function drawBoard(){
 	for(let i = 0; i < board.length; i++){
@@ -296,7 +297,9 @@ function checkGameEnd(){
       if(loop == 1){
         init();
       }
+      return 1;
     }
+    return 0;
 }
 
 $('#board td').click(boardClick);
@@ -410,7 +413,11 @@ function aiGame(){
         turn = 2;
 
         getValidMoves(turn);
-        checkGameEnd();
+        if(checkGameEnd() == 1){
+          drawBoard();
+          updateInfo();
+          return;
+        }
         drawBoard();
         updateInfo();
         whiteFinishFlag = 1;
@@ -425,7 +432,11 @@ function aiGame(){
             turn = 1;
 
             getValidMoves(turn);
-            checkGameEnd();
+            if(checkGameEnd() == 1){
+              drawBoard();
+              updateInfo();
+              return;
+            }
             drawBoard();
             updateInfo();
             blackFinishFlag = 1;
@@ -433,9 +444,9 @@ function aiGame(){
             if(whiteFinishFlag == 1 && blackFinishFlag == 1 && gameOver != 1){
               play();
             }
-          }, 500)
+          }, aiDelay)
         }
-      }, 500)
+      }, aiDelay)
     }
   }
 }
@@ -488,6 +499,7 @@ function init(){
 $('#initGame').click(function(){
   whitePlayerType = document.getElementById("SelectWhite").value;
   blackPlayerType = document.getElementById("SelectBlack").value;
+  aiDelay = document.getElementById("SelectDelay").value;
   if(document.getElementById("loopBox").checked == true){loop = 1;}
   else{loop = 0;}
   document.getElementById("initGame").innerHTML = "Restart";
