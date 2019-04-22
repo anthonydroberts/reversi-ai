@@ -16,7 +16,9 @@ var whiteCount = 0;
 var blackCount = 0;
 var gameOver = 0;
 var globalWait = 0; //set to 1 when user has to wait to click
+var loop = 0; //resets game with same params on gameEnd
 var aiRecentx = -1; var aiRecenty = -1;
+var whiteWinsCount = 0; var blackWinsCount = 0;
 
 function drawBoard(){
 	for(let i = 0; i < board.length; i++){
@@ -270,14 +272,20 @@ function checkGameEnd(){
       else if (whiteCount > blackCount){
         document.getElementById("turn").innerHTML = "White Wins!";
         document.getElementById("turn").style.color = "White";
+        whiteWinsCount++;
       }
       else if (whiteCount < blackCount){
         document.getElementById("turn").innerHTML = "Black Wins!";
         document.getElementById("turn").style.color = "Black";
+        blackWinsCount++;
       }
       else{
         alert("ERROR")
       }
+
+      document.getElementById("numWins").innerHTML = "White Wins: " + whiteWinsCount +
+      " Black Wins: " + blackWinsCount;
+      init();
     }
 }
 
@@ -470,6 +478,7 @@ function init(){
 $('#initGame').click(function(){
   whitePlayerType = document.getElementById("SelectWhite").value;
   blackPlayerType = document.getElementById("SelectBlack").value;
+  loop = document.getElementById("loopBox").value;
   document.getElementById("initGame").innerHTML = "Restart";
   init();
 });
