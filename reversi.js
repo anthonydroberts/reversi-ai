@@ -518,6 +518,11 @@ function makeAiMove(player, aiType){
   //coords that the ai has chosen
   var xChoice = -1;
   var yChoice = -1;
+
+  var opponent = 0;
+  if(player == 1){ opponent = 2; }
+  else{ opponent = 1; }
+
   if(gameOver == 1){
     return;
   }
@@ -529,17 +534,287 @@ function makeAiMove(player, aiType){
     let moveChoice = Math.floor((Math.random() * validMoves.length) + 0);
     xChoice = validMoves[moveChoice][1];
     yChoice = validMoves[moveChoice][0];
+
+    aiRecentx = xChoice;
+    aiRecenty = yChoice;
+    placeTile(xChoice, yChoice, player);
   }
 
   if(aiType == 2){
-    //minimax with AB pruning
+        //minimax with AB pruning
+        //node object, declare ex: let newNode = new Node(params);
+    var depthLimit = 4;
+
+    board = MINIMAXDECISION();
+    return;
+    function Node(state, score, depth, par) {
+    	this.state = state;
+    	this.score = score;
+    	this.depth = depth;
+    	this.parent = par;
+    	this.children = [];
+    }
+
+    // minimax algorithm, takes current board (game)
+    function MINIMAXDECISION(){
+    	let b = JSON.parse(JSON.stringify(board));
+    	let root = new Node (b, 0, 0, null);
+
+    	let v = MAXVALUE(root, -Infinity, Infinity);
+    	for(let i = 0; i < root.children.length; i++){
+    		if(root.children[i].score == v){
+          for(let k = 0; k < validMoves.length; k++){
+            if(root.children[i].state[validMoves[k][0]][validMoves[k][1]] == player){
+              console.log("test");
+              aiRecentx = validMoves[k][1];
+              aiRecenty = validMoves[k][0];
+            }
+          }
+          root.children[i].state
+          console.log(root.children[i].state);
+    			return root.children[i].state; //returns move board
+    		}
+    	}
+    	return null;
+    }
+
+    //maximum function for minmax
+    function MAXVALUE(node, alpha, beta){
+    	let b = JSON.parse(JSON.stringify(node.state));
+    	let v = -Infinity;
+
+    	if (node.depth >= depthLimit){
+    		return scoreBoard(node.state, opponent, 0);
+    	}
+      let statePossibleMoves = simulateValidMoves(b, player);
+    	for(let c = 0; c < statePossibleMoves.length; c++){
+    			let newState = simulateBoard(b,statePossibleMoves[c][0],statePossibleMoves[c][1],player);
+    			let newScore = 0;
+    			let newNode = new Node(newState, newScore, node.depth + 1, node);
+    			node.children.push(newNode);
+
+    			newNode.score = MINVALUE(newNode, alpha, beta);
+
+    			v = Math.max(v, newNode.score);
+    			if(v >= beta){
+    				return v;
+    			}
+    			alpha = Math.max(alpha,v);
+
+
+    	}
+
+    	return v;
+    }
+
+
+    function MINVALUE(node, alpha, beta){
+    	let b = JSON.parse(JSON.stringify(node.state));
+    	let v = Infinity;
+
+    	if (node.depth >= depthLimit){
+    		return scoreBoard(node.state, player, 0);
+    	}
+
+      let statePossibleMoves = simulateValidMoves(b, opponent);
+    	for(let c = 0; c < statePossibleMoves.length; c++){
+    			let newState = simulateBoard(b,statePossibleMoves[c][0],statePossibleMoves[c][1],opponent);
+    			let newScore = 0;
+    			let newNode = new Node(newState, newScore, node.depth + 1, node);
+    			node.children.push(newNode);
+    			newNode.score = MAXVALUE(newNode, alpha, beta);
+    			v = Math.min(v, newNode.score);
+
+    			if(v <= alpha){
+    				return v;
+    			}
+    			beta = Math.min(beta,v);
+
+    	}
+
+    	return v;
+    }
+
   }
 
-  aiRecentx = xChoice;
-  aiRecenty = yChoice;
-  placeTile(xChoice, yChoice, player);
   return;
 }
 
 //SCORING SYSTEMS START HERE
 //TAKE IN A BOARD AND RETURN A SCORE OF EACH
+function scoreBoard (stateBoard, player, method){
+  if(method == 0){
+    return 1000;
+  }
+}
+
+
+//state simulation, takes a valid move and board, returns a possible board after playing that valid move
+function simulateBoard(bIn,i,j,player){
+  let b = JSON.parse(JSON.stringify(bIn));
+  let opponent = 0;
+  if(player == 1){ opponent = 2; }
+  else{ opponent = 1; }
+  try {
+    if (b[i+1][j] == opponent){
+      if (simulateCheckValid(j, i, 0, 1, player, b)){simulateFlipLine(j, i, 0, 1, player, b);}
+    }
+  }
+  catch(e){}
+  try {
+    if (b[i-1][j] == opponent){
+      if (simulateCheckValid(j, i, 0, -1, player, b)){simulateFlipLine(j, i, 0, -1, player, b);}
+    }
+  }
+  catch(e){}
+  try {
+    if (b[i][j+1] == opponent){
+      if (simulateCheckValid(j, i, 1, 0, player, b)){simulateFlipLine(j, i, 1, 0, player, b);}
+    }
+  }
+  catch(e){}
+  try {
+    if (b[i][j-1] == opponent){
+      if (simulateCheckValid(j, i, -1, 0, player, b)){simulateFlipLine(j, i, -1, 0, player, b);}
+    }
+  }
+  catch(e){}
+  try {
+    if (b[i+1][j-1] == opponent){
+      if (simulateCheckValid(j, i, -1, 1, player, b)){simulateFlipLine(j, i, -1, 1, player, b);}
+    }
+  }
+  catch(e){}
+  try {
+    if (b[i-1][j+1] == opponent){
+      if (simulateCheckValid(j, i, 1, -1, player, b)){simulateFlipLine(j, i, 1, -1, player, b);}
+    }
+  }
+  catch(e){}
+  try {
+    if (b[i+1][j+1] == opponent){
+      if (simulateCheckValid(j, i, 1, 1, player, b)){simulateFlipLine(j, i, 1, 1, player, b);}
+    }
+  }
+  catch(e){}
+  try {
+    if (b[i-1][j-1] == opponent){
+      if (simulateCheckValid(j, i, -1, -1, player, b)){simulateFlipLine(j, i, -1, -1, player, b);}
+    }
+  }
+  catch(e){}
+  return b;
+}
+
+function simulateFlipLine(x, y, xDir, yDir, player, b){
+  let opponent = 0;
+  if(player == 1){ opponent = 2; }
+  else{ opponent = 1; }
+  b[y][x] = player;
+  let i = 1;
+  while(1){
+    if(b[y+(yDir*i)][x+(xDir*i)] == player){
+      //when we reach our end tile we are done
+      return 0;
+    }
+    else if (b[y+(yDir*i)][x+(xDir*i)] == opponent){
+      //convert opponent tiles to ours
+      b[y+(yDir*i)][x+(xDir*i)] = player;
+      i++;
+      continue;
+    }
+  }
+}
+
+//returns list of valid moves for given board and given player
+function simulateValidMoves(bIn,p){
+  let b = JSON.parse(JSON.stringify(bIn));
+  var retValidMoves = [];
+  let opponent = 0;
+  if(p == 1){ opponent = 2; }
+  else{ opponent = 1; }
+  //for every tile, check all directions to the end of the board and search for another
+  //same color piece
+
+  for(let i = 0; i < b.length; i++){
+    for(let j = 0; j < b[0].length; j++){
+      if(b[i][j] == 0){
+          try {
+            if (b[i+1][j] == opponent){
+              if (simulateCheckValid(j, i, 0, 1, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+          try {
+            if (b[i-1][j] == opponent){
+              if (simulateCheckValid(j, i, 0, -1, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+          try {
+            if (b[i][j+1] == opponent){
+              if (simulateCheckValid(j, i, 1, 0, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+          try {
+            if (b[i][j-1] == opponent){
+              if (simulateCheckValid(j, i, -1, 0, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+          try {
+            if (b[i+1][j-1] == opponent){
+              if (simulateCheckValid(j, i, -1, 1, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+          try {
+            if (b[i-1][j+1] == opponent){
+              if (simulateCheckValid(j, i, 1, -1, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+          try {
+            if (b[i+1][j+1] == opponent){
+              if (simulateCheckValid(j, i, 1, 1, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+          try {
+            if (b[i-1][j-1] == opponent){
+              if (simulateCheckValid(j, i, -1, -1, p, b)){retValidMoves.push([i,j]);}
+            }
+          }
+          catch(e){}
+        }
+
+      }
+    }
+
+    return retValidMoves;
+}
+
+function simulateCheckValid(x, y, xDir, yDir, player, bIn){
+  let b = JSON.parse(JSON.stringify(bIn));
+  let opponent = 0;
+  if(player == 1){ opponent = 2; }
+  else{ opponent = 1; }
+  let i = 2;
+  while(i < 8){
+    if(b[y+(yDir*i)][x+(xDir*i)] == 0){
+      return 0;
+    }
+    else if (b[y+(yDir*i)][x+(xDir*i)] == player){
+      return 1;
+    }
+    else if (b[y+(yDir*i)][x+(xDir*i)] == opponent){
+      i++;
+      continue;
+    }
+    else{
+      return 0;
+    }
+  }
+  return 0;
+}
