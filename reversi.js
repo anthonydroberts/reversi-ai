@@ -38,6 +38,14 @@ function drawBoard(){
       else if(aiRecentx == j && aiRecenty == i){
         let cell = $("tr:eq(" + i + ")").find('td').eq(j).css('box-shadow', '0 0 5px 5px #0ff');
         cell = $("tr:eq(" + i + ")").find('td').eq(j).css('opacity', '1.0');
+        if(board[i][j] == 1){
+          cell = $("tr:eq(" + i + ")").find('td').eq(j).css('background', 'white');
+          cell = $("tr:eq(" + i + ")").find('td').eq(j).css('opacity', '1.0');
+        }
+        else if(board[i][j] == 2){
+          cell = $("tr:eq(" + i + ")").find('td').eq(j).css('background', 'black');
+          cell = $("tr:eq(" + i + ")").find('td').eq(j).css('opacity', '1.0');
+        }
       }
 			else if(board[i][j] == 0){
 				let cell = $("tr:eq(" + i + ")").find('td').eq(j).css('background', 'transparent');
@@ -423,9 +431,9 @@ function aiGame(){
             if(whiteFinishFlag == 1 && blackFinishFlag == 1 && gameOver != 1){
               play();
             }
-          }, 100)
+          }, 500)
         }
-      }, 100)
+      }, 500)
     }
   }
 }
@@ -507,9 +515,16 @@ function makeAiMove(player, aiType){
     xChoice = validMoves[moveChoice][1];
     yChoice = validMoves[moveChoice][0];
   }
-  console.log("AI Placed at: " + xChoice + ", " + yChoice);
+
+  if(aiType == 2){
+    //minimax with AB pruning
+  }
+
   aiRecentx = xChoice;
   aiRecenty = yChoice;
   placeTile(xChoice, yChoice, player);
   return;
 }
+
+//SCORING SYSTEMS START HERE
+//TAKE IN A BOARD AND RETURN A SCORE OF EACH
