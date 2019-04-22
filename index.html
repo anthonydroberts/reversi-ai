@@ -1,0 +1,128 @@
+<!doctype html>
+
+<html>
+<head>
+	<title>Reversi</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
+<body>
+	<div id = "parentAll">
+		<div id = "title">
+			<h1>Reversi</h1>
+			<h3>Anthony Roberts</h3>
+		</div>
+
+		<div id = "info">
+			<p id = "turn" style="color:white;">White's Turn</p>
+			<p id = "numTiles" >White Tiles: 0 Black Tiles: 0</p>
+		</div>
+		<br>
+    <table id="board">
+	      <tbody>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	        <tr>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	          <td></td>
+	        </tr>
+	      </tbody>
+	    </table>
+			<br>
+			<div id = "settings">
+				<form>
+					White Player:
+					<select id="SelectWhite">
+						<option value="0">Player</option>
+						<option value="1">Dumb AI (Random Placement)</option>
+					</select>
+				</form>
+				<br>
+				<form>
+					Black Player:
+					<select id="SelectBlack">
+						<option value="0">Player</option>
+						<option value="1">Dumb AI (Random Placement)</option>
+					</select>
+				</form>
+				<br>
+				<button id="initGame">Start</button>
+			</div>
+	</div>
+</body>
+<script src="reversi.js"></script>
+</html>
