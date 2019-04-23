@@ -21,6 +21,7 @@ var aiRecentx = -1; var aiRecenty = -1;
 var whiteWinsCount = 0; var blackWinsCount = 0;
 var aiDelay = 100; //ai vs ai delay in ms
 var whiteDepth = 2; var blackDepth = 2;
+var scoringIterations = 0;
 
 function drawBoard(){
 	for(let i = 0; i < board.length; i++){
@@ -524,7 +525,7 @@ function makeAiMove(player, aiType, depth){
   //coords that the ai has chosen
   var xChoice = -1;
   var yChoice = -1;
-
+  var nodesSearched = 0;
   var opponent = 0;
   if(player == 1){ opponent = 2; }
   else{ opponent = 1; }
@@ -575,7 +576,9 @@ function makeAiMove(player, aiType, depth){
               aiRecenty = validMoves[k][0];
             }
           }
-          root.children[i].state
+          console.log("Nodes Searched for move: " + nodesSearched);
+          console.log("Iterations for move: " + scoringIterations);
+          scoringIterations = 0;
     			return root.children[i].state; //returns move board
     		}
     	}
@@ -592,6 +595,7 @@ function makeAiMove(player, aiType, depth){
     	}
       let statePossibleMoves = simulateValidMoves(b, player);
     	for(let c = 0; c < statePossibleMoves.length; c++){
+          nodesSearched++;
     			let newState = simulateBoard(b,statePossibleMoves[c][0],statePossibleMoves[c][1],player);
     			let newScore = 0;
     			let newNode = new Node(newState, newScore, node.depth + 1, node);
@@ -622,6 +626,7 @@ function makeAiMove(player, aiType, depth){
 
       let statePossibleMoves = simulateValidMoves(b, opponent);
     	for(let c = 0; c < statePossibleMoves.length; c++){
+          nodesSearched++;
     			let newState = simulateBoard(b,statePossibleMoves[c][0],statePossibleMoves[c][1],opponent);
     			let newScore = 0;
     			let newNode = new Node(newState, newScore, node.depth + 1, node);
@@ -733,6 +738,7 @@ function simulateValidMoves(bIn,p){
 
   for(let i = 0; i < b.length; i++){
     for(let j = 0; j < b[0].length; j++){
+      scoringIterations++;
       if(b[i][j] == 0){
           try {
             if (b[i+1][j] == opponent){
@@ -797,6 +803,7 @@ function simulateCheckValid(x, y, xDir, yDir, player, bIn){
   else{ opponent = 1; }
   let i = 2;
   while(i < 8){
+    scoringIterations++;
     if(b[y+(yDir*i)][x+(xDir*i)] == 0){
       return 0;
     }
@@ -826,6 +833,7 @@ function scoreBoard (stateBoard, player, method){
     let score = 0;
     for(let i = 0; i < stateBoard.length; i++){
       for(let j = 0; j < stateBoard[0].length; j++){
+        scoringIterations++;
         if(stateBoard[i][j] == player){score++;}
         else if(stateBoard[i][j] == opponent){score--;}
       }
@@ -838,6 +846,7 @@ function scoreBoard (stateBoard, player, method){
     let score = 0;
     for(let i = 0; i < stateBoard.length; i++){
       for(let j = 0; j < stateBoard[0].length; j++){
+        scoringIterations++;
         if(i == 0 && j == 0){
           if(stateBoard[i][j] == player){
             score = score + 100;
@@ -897,6 +906,7 @@ function scoreBoard (stateBoard, player, method){
     for(let i = 0; i < stateBoard.length; i++){
       for(let j = 0; j < stateBoard[0].length; j++){
         if(i == 0 && j == 0){
+          scoringIterations++;
           if(stateBoard[i][j] == player){
             score = score + 100;
           }
