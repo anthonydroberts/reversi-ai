@@ -297,7 +297,7 @@ function checkGameEnd(){
         init();
       }
 
-      if(whiteWinsCount + blackWinsCount == 100){
+      if(whiteWinsCount + blackWinsCount == 40){
         console.log("SCORE: White " + whiteWinsCount + " Black " + blackWinsCount);
       }
       return 1;
