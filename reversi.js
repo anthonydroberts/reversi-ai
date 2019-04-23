@@ -20,6 +20,7 @@ var loop = 0; //resets game with same params on gameEnd
 var aiRecentx = -1; var aiRecenty = -1;
 var whiteWinsCount = 0; var blackWinsCount = 0;
 var aiDelay = 100; //ai vs ai delay in ms
+var whiteDepth = 2; var blackDepth = 2;
 
 function drawBoard(){
 	for(let i = 0; i < board.length; i++){
@@ -272,8 +273,6 @@ function checkGameEnd(){
     if(validMoves == 0){
       gameOver = 1;
       //game over
-      console.log("White tiles = " + whiteCount);
-      console.log("Black tiles = " + blackCount);
       if(whiteCount == blackCount){
         document.getElementById("turn").innerHTML = "Draw";
         document.getElementById("turn").style.color = "Grey";
@@ -352,7 +351,7 @@ function boardClick(){
     updateInfo();
     globalWait = 1;
     setTimeout(function(){
-      makeAiMove(turn, blackPlayerType);
+      makeAiMove(turn, blackPlayerType, blackDepth);
       turn = 1;
 
       getValidMoves(turn);
@@ -377,7 +376,7 @@ function boardClick(){
     updateInfo();
     globalWait = 1;
     setTimeout(function(){
-      makeAiMove(turn, whitePlayerType);
+      makeAiMove(turn, whitePlayerType, whiteDepth);
       turn = 2;
 
       getValidMoves(turn);
@@ -409,7 +408,7 @@ function aiGame(){
     globalWait = 1;
     if(turn == 1){
       setTimeout(function(){
-        makeAiMove(turn, whitePlayerType);
+        makeAiMove(turn, whitePlayerType, whiteDepth);
         turn = 2;
 
         getValidMoves(turn);
@@ -428,7 +427,7 @@ function aiGame(){
         globalWait = 1;
         if(turn == 2){
           setTimeout(function(){
-            makeAiMove(turn, blackPlayerType);
+            makeAiMove(turn, blackPlayerType, blackDepth);
             turn = 1;
 
             getValidMoves(turn);
@@ -465,10 +464,11 @@ function init(){
    aiRecenty = -1;
    gameOver = 0;
    turn = 1;
+   globalWait = 0;
    if(whitePlayerType != 0 && blackPlayerType == 0){
      globalWait = 1;
      setTimeout(function(){
-       makeAiMove(turn, whitePlayerType);
+       makeAiMove(turn, whitePlayerType, whiteDepth);
        turn = 2;
 
        getValidMoves(turn);
@@ -499,6 +499,8 @@ function init(){
 $('#initGame').click(function(){
   whitePlayerType = document.getElementById("SelectWhite").value;
   blackPlayerType = document.getElementById("SelectBlack").value;
+  whiteDepth = document.getElementById("SelectWhiteDepth").value;
+  blackDepth = document.getElementById("SelectBlackDepth").value;
   aiDelay = document.getElementById("SelectDelay").value;
   if(document.getElementById("loopBox").checked == true){loop = 1;}
   else{loop = 0;}
@@ -514,7 +516,7 @@ drawBoard();
 //it will place the tile and everything, etc
 //takes in the player type that it is calculating for, and the type of move
 //it should calcuate(E.G. 1 corresponds to dumb ai, 2 to something else, etc)
-function makeAiMove(player, aiType){
+function makeAiMove(player, aiType, depth){
   //coords that the ai has chosen
   var xChoice = -1;
   var yChoice = -1;
@@ -540,10 +542,10 @@ function makeAiMove(player, aiType){
     placeTile(xChoice, yChoice, player);
   }
 
-  if(aiType == 2){
+  if(aiType >= 2){
         //minimax with AB pruning
         //node object, declare ex: let newNode = new Node(params);
-    var depthLimit = 4;
+    var depthLimit = depth;
 
     board = MINIMAXDECISION();
     return;
@@ -565,13 +567,11 @@ function makeAiMove(player, aiType){
     		if(root.children[i].score == v){
           for(let k = 0; k < validMoves.length; k++){
             if(root.children[i].state[validMoves[k][0]][validMoves[k][1]] == player){
-              console.log("test");
               aiRecentx = validMoves[k][1];
               aiRecenty = validMoves[k][0];
             }
           }
           root.children[i].state
-          console.log(root.children[i].state);
     			return root.children[i].state; //returns move board
     		}
     	}
@@ -584,7 +584,7 @@ function makeAiMove(player, aiType){
     	let v = -Infinity;
 
     	if (node.depth >= depthLimit){
-    		return scoreBoard(node.state, opponent, 0);
+    		return scoreBoard(node.state, player, aiType);
     	}
       let statePossibleMoves = simulateValidMoves(b, player);
     	for(let c = 0; c < statePossibleMoves.length; c++){
@@ -613,7 +613,7 @@ function makeAiMove(player, aiType){
     	let v = Infinity;
 
     	if (node.depth >= depthLimit){
-    		return scoreBoard(node.state, player, 0);
+    		return scoreBoard(node.state, opponent, aiType);
     	}
 
       let statePossibleMoves = simulateValidMoves(b, opponent);
@@ -639,15 +639,6 @@ function makeAiMove(player, aiType){
 
   return;
 }
-
-//SCORING SYSTEMS START HERE
-//TAKE IN A BOARD AND RETURN A SCORE OF EACH
-function scoreBoard (stateBoard, player, method){
-  if(method == 0){
-    return 1000;
-  }
-}
-
 
 //state simulation, takes a valid move and board, returns a possible board after playing that valid move
 function simulateBoard(bIn,i,j,player){
@@ -817,4 +808,134 @@ function simulateCheckValid(x, y, xDir, yDir, player, bIn){
     }
   }
   return 0;
+}
+
+//SCORING SYSTEMS START HERE
+//TAKE IN A BOARD AND RETURN A SCORE OF EACH
+function scoreBoard (stateBoard, player, method){
+  let opponent = 0;
+  if(player == 1){ opponent = 2; }
+  else{ opponent = 1; }
+
+  if(method == 2){
+    //counting number of player tiles vs opponent tiles
+    let score = 0;
+    for(let i = 0; i < stateBoard.length; i++){
+      for(let j = 0; j < stateBoard[0].length; j++){
+        if(stateBoard[i][j] == player){score++;}
+        else if(stateBoard[i][j] == opponent){score--;}
+      }
+    }
+    return score;
+  }
+
+  if(method == 3){
+    //prioritize corners
+    let score = 0;
+    for(let i = 0; i < stateBoard.length; i++){
+      for(let j = 0; j < stateBoard[0].length; j++){
+        if(i == 0 && j == 0){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(i == 7 && j == 0){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(i == 7 && j == 7){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(i == 0 && j == 7){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(stateBoard[i][j] == player){score++;}
+        else if(stateBoard[i][j] == opponent){score--;}
+      }
+    }
+    return score;
+  }
+
+  if(method == 4){
+    //mobility (number of valid moves for player, vs number of valid moves for opponent)
+    var playerValidSet = simulateValidMoves(stateBoard, player);
+    var opponentValidSet = simulateValidMoves(stateBoard, opponent);
+    var score = 0;
+
+    score = score + playerValidSet.length;
+    score = score - opponentValidSet.length;
+
+    return score;
+  }
+
+  if(method == 5){
+    //mobility (number of valid moves for player, vs number of valid moves for opponent)
+    // and corners
+
+    let score = 0;
+    for(let i = 0; i < stateBoard.length; i++){
+      for(let j = 0; j < stateBoard[0].length; j++){
+        if(i == 0 && j == 0){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(i == 7 && j == 0){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(i == 7 && j == 7){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(i == 0 && j == 7){
+          if(stateBoard[i][j] == player){
+            score = score + 100;
+          }
+          else if(stateBoard[i][j] == opponent){
+            score = score - 100;
+          }
+        }
+        else if(stateBoard[i][j] == player){score++;}
+        else if(stateBoard[i][j] == opponent){score--;}
+      }
+    }
+
+    var playerValidSet = simulateValidMoves(stateBoard, player);
+    var opponentValidSet = simulateValidMoves(stateBoard, opponent);
+
+    score = score + playerValidSet.length;
+    score = score - opponentValidSet.length;
+
+    return score;
+  }
+
 }
