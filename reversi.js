@@ -296,6 +296,10 @@ function checkGameEnd(){
       if(loop == 1){
         init();
       }
+
+      if(whiteWinsCount + blackWinsCount == 100){
+        console.log("SCORE: White " + whiteWinsCount + " Black " + blackWinsCount);
+      }
       return 1;
     }
     return 0;
