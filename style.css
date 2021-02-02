@@ -58,7 +58,7 @@ body{
 #board td:hover::after {
     background-color: #DCE2E6;
     content: '';
-    height: 54px;
+    height: 44px;
     left: 0;
     position: absolute;
     top: 0;
